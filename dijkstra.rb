@@ -33,7 +33,8 @@ def dijkstra(graph, source)
       alt = dist[current] + graph[current][v]
        if alt < dist[v]
         dist[v] = alt
-        prev[v] = dist[current]
+        # prev[v] = dist[current]
+        prev[v] = current
       end
     end
 
@@ -48,22 +49,23 @@ def dijkstra(graph, source)
   [dist, prev]
 end
 
-def shortest_path(graph, x, y)
-  dj_arr = dijkstra(graph, x)
+def shortest_path(graph, start, finish)
+  dj_arr = dijkstra(graph, start)
 
   dist = dj_arr[0]
   prev = dj_arr[1]
 
   stack = []
-  while prev[y]
-    stack.push y
-    y = dist.index(prev[y])
+  while prev[finish]
+    # binding.pry
+    stack << finish
+    finish = prev[finish]
   end
 
-  stack.push x
+  stack << start
   puts dist.to_s + ' dist to each node from source'
   puts prev.to_s + ' previous node to each node'
-  puts stack.to_s + ' shortest path from y to x'
+  puts stack.reverse.to_s + ' shortest path from start to finish'
 end
 
 file = open('dijkstra.txt', 'r')
