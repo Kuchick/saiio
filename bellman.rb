@@ -2,8 +2,6 @@ require 'pry'
 require 'set'
 
 def bellman(graph, start, finish)
-  start -= 1
-  finish -= 1
   prev = []
   b = []
   i_star = [start]
@@ -15,10 +13,12 @@ def bellman(graph, start, finish)
   while b[finish].nil?
     pathes = all_pathes(graph, i_star)
     # where we can go from current node - w(I*)
+    # binding.pry
     next_node = pathes.find { |index| (existing_indexes(graph.transpose[index]) - i_star).empty? && b[index].nil? }
     # find node for which I(-, j*) in I*
-    prev[next_node] = current
-    b[next_node] = calc_max_length(graph, b, next_node, i_star)
+    b[next_node], prev[next_node] = calc_max_length(graph, b, next_node, i_star)
+
+    # prev[next_node] = current
     current = next_node
     i_star << next_node
     i_star.uniq
@@ -36,17 +36,24 @@ def existing_indexes(array)
 end
 
 def calc_max_length(graph, b, current, indexes)
+  max = 0
+  max_index = 0
   indexes.map do |index|
     next unless graph.transpose[current][index]
-    b[index] + graph.transpose[current][index]
-  end.compact.max
+    current_length = b[index] + graph.transpose[current][index]
+    if current_length > max
+      max = current_length
+      max_index = index
+    end
+  end
+  [max, max_index]
 end
 
 def entries_for_node(graph, current_index, i_star)
   i_star.select { |i| existing_indexes(graph[current_index]).include? i }
 end
 
-file = open('bellman.txt', 'r')
+file = open('bellman2.txt', 'r')
 start, finish = file.readline.chomp.split(',').map(&:to_i)
 graph = []
 file.each_line do |line|
